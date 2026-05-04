@@ -18,7 +18,7 @@ from src.exception import CustomException
 from src.logger import logging
 
 from src.utils import save_object,evaluate_models
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 
 @dataclass
 class ModelTrainerConfig:
@@ -51,74 +51,130 @@ class ModelTrainer:
 
             param_grid = {
                 "Random Forest": {
-                    "n_estimators": [50, 100, 200],
-                    "max_depth": [None, 5, 10],
-                    "min_samples_split": [2, 5]
+                    "n_estimators": [50, 100, 200, 300, 500],
+                    "max_depth": [None, 5, 10, 15, 20],
+                    "min_samples_split": [2, 5, 10],
+                    "min_samples_leaf": [1, 2, 4],
+                    "max_features": ["sqrt", "log2", None],
+                    "bootstrap": [True, False],
+                    "criterion": ["squared_error", "absolute_error", "poisson"],
                 },
 
                 "Decision Tree": {
-                    "max_depth": [3, 5, 10, None],
-                    "min_samples_split": [2, 5, 10]
+                    "max_depth": [3, 5, 10, 15, None],
+                    "min_samples_split": [2, 5, 10, 20],
+                    "min_samples_leaf": [1, 2, 4, 8],
+                    "max_features": ["sqrt", "log2", None],
+                    "criterion": ["squared_error", "absolute_error", "friedman_mse", "poisson"],
+                    "splitter": ["best", "random"],
+                    "ccp_alpha": [0.0, 0.01, 0.05, 0.1],
                 },
 
                 "Gradient Boosting": {
-                    "n_estimators": [50, 100, 200],
-                    "learning_rate": [0.01, 0.1, 0.2],
-                    "max_depth": [3, 5]
+                    "n_estimators": [50, 100, 200, 300],
+                    "learning_rate": [0.01, 0.05, 0.1, 0.2],
+                    "max_depth": [3, 5, 7, 10],
+                    "min_samples_split": [2, 5, 10],
+                    "min_samples_leaf": [1, 2, 4],
+                    "subsample": [0.6, 0.8, 1.0],
+                    "max_features": ["sqrt", "log2", None],
+                    "loss": ["squared_error", "absolute_error", "huber", "quantile"],
+                },
+
+                "Linear Regression": {
+                    "fit_intercept": [True, False],
+                    "positive": [True, False],
                 },
 
                 "XGBRegressor": {
-                    "n_estimators": [100, 200],
-                    "learning_rate": [0.05, 0.1],
-                    "max_depth": [3, 5, 7]
-                },
-
-                "KNeighborsRegressor": {
-                    "n_neighbors": [3, 5, 7, 9]
-                },
-
-                "AdaBoost Regressor": {
-                    "n_estimators": [50, 100, 200],
-                    "learning_rate": [0.01, 0.1, 1.0]
+                    "n_estimators": [50, 100, 200, 300, 500],
+                    "learning_rate": [0.01, 0.05, 0.1, 0.2, 0.3],
+                    "max_depth": [3, 5, 7, 9, 12],
+                    "min_child_weight": [1, 3, 5, 7],
+                    "gamma": [0, 0.1, 0.2, 0.5],
+                    "subsample": [0.6, 0.7, 0.8, 1.0],
+                    "colsample_bytree": [0.6, 0.7, 0.8, 1.0],
+                    "reg_alpha": [0, 0.01, 0.1, 1.0],
+                    "reg_lambda": [0.5, 1.0, 2.0, 5.0],
+                    "scale_pos_weight": [1],
                 },
 
                 "CatBoosting Regressor": {
-                    "depth": [4, 6, 8],
-                    "learning_rate": [0.01, 0.1],
-                    "iterations": [100, 200]
-                }
+                    "iterations": [100, 200, 300, 500],
+                    "learning_rate": [0.01, 0.05, 0.1, 0.2],
+                    "depth": [4, 6, 8, 10],
+                    "l2_leaf_reg": [1, 3, 5, 7, 9],
+                    "bagging_temperature": [0, 0.5, 1.0],
+                    "border_count": [32, 64, 128],
+                    "min_data_in_leaf": [1, 3, 5, 10],
+                    "random_strength": [0.5, 1.0, 2.0],
+                },
+
+                "AdaBoost Regressor": {
+                    "n_estimators": [50, 100, 200, 300],
+                    "learning_rate": [0.01, 0.05, 0.1, 0.5, 1.0],
+                    "loss": ["linear", "square", "exponential"],
+                    "estimator": [
+                        DecisionTreeRegressor(max_depth=1),
+                        DecisionTreeRegressor(max_depth=2),
+                        DecisionTreeRegressor(max_depth=3),
+                    ],
+                },
+
+                "KNeighborsRegressor": {
+                    "n_neighbors": [3, 5, 7, 9, 11, 15, 21],
+                    "weights": ["uniform", "distance"],
+                    "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
+                    "leaf_size": [10, 20, 30, 40, 50],
+                    "p": [1, 2],  # 1 = Manhattan, 2 = Euclidean
+                    "metric": ["minkowski", "euclidean", "manhattan", "chebyshev"],
+                },
             }
             
-
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
+            # Step 1: Basic Evaluation
+            model_report: dict =evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
                                              models=models)
             
-            # Best model find
+            # Step 2: Find the best model
             best_model_name = max(model_report, key=model_report.get)
             best_model_score = model_report[best_model_name]
+            
+            logging.info(f"Best model before tuning: {best_model_name} | Score: {best_model_score:.4f}")
 
+            # ✅ Threshold check
+            if best_model_score < 0.6:
+                raise CustomException("No best model found with acceptable score.", sys)
+        
             best_model = models[best_model_name]
-            logging.info(f"Best model: {best_model_name}")
-            # Tuning Part 
+            
+            # # Step 3: Tuning Part 
 
             # 👉 Get param for best model
             params = param_grid.get(best_model_name, {})
 
-            logging.info(f"\n🔧 Hyperparameter tuning started...")
+            if params:
+                logging.info(f"🔧 Tuning started for: {best_model_name}")
 
-            gs = GridSearchCV(
-                        best_model,
-                        params,
-                        cv=3,
-                        n_jobs=-1,
-                        verbose=2   #  live progress
-                    )
+                gs = RandomizedSearchCV(
+                            best_model,
+                            params,
+                            n_iter=50,          
+                            cv=5,
+                            scoring="r2",
+                            n_jobs=-1,          
+                            random_state=42,
+                            verbose=2
+                        )
 
-            gs.fit(X_train, y_train)
+                gs.fit(X_train, y_train)
 
-            logging.info(f"🔥 Best Params: {gs.best_params_}")
-            logging.info(f"📈 CV Best Score: {gs.best_score_:.4f}")
-            tuned_model = gs.best_estimator_
+                logging.info(f"🔥 Best Params: {gs.best_params_}")
+                logging.info(f"📈 CV Best Score: {gs.best_score_:.4f}")
+                tuned_model = gs.best_estimator_
+            else:
+                logging.info(f"⚡ No tuning needed for: {best_model_name}")
+                tuned_model = best_model
+                tuned_model.fit(X_train, y_train)                
                     
             
             # 👉 Final evaluation with test data.
@@ -134,8 +190,7 @@ class ModelTrainer:
                 obj=tuned_model
                 )
             
-
-        
+            
             return final_score
 
         except Exception as e:
