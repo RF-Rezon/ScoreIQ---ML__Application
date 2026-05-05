@@ -1,6 +1,8 @@
-# 🎯 ScoreIQ - Student Performance Prector 
+<img margin-bottom="5" width="119" height="45" alt="image" src="https://github.com/user-attachments/assets/4da2fb91-3e77-49fa-88db-5ac992f1f4b4" />
 
-It is a Machine Learning powered web application that predicts a student's **math score** based on various demographic and academic inputs.
+**Student Performance Prector** 
+
+It's a **Machine Learning** powered web application that predicts a student's **math score** based on various demographic and academic inputs.
 
 Built with 
  - **numpy**
@@ -14,23 +16,23 @@ Built with
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 > *https://scoreiq-ml-application.onrender.com*
 
 ---
 
-## 📌 Features
+## Features
 
-* 🔮 Predicts **Math Score** using ML model.
-* 🧠 Uses real-world student performance dataset.
-* 📊 Interactive UI with animated progress bar.
-* ⚡ Fast prediction pipeline.
-* 🌐 Web-based interface (Flask).
+* Predicts **Math Score** using ML model.
+* Uses real-world student performance dataset.
+* Interactive UI with animated progress bar.
+* Fast prediction pipeline.
+* Web-based interface (Flask).
 
 ---
 
-## 🧪 Input Features
+## Input Features
 
 The model takes the following inputs:
 
@@ -51,34 +53,34 @@ The model takes the following inputs:
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-<img width="2559" height="1354" alt="image" src="https://github.com/user-attachments/assets/60353523-ea3a-457f-8d7b-4230fc56a651" />
+<img margin-bottom="20" width="2559" height="1354" alt="image" src="https://github.com/user-attachments/assets/60353523-ea3a-457f-8d7b-4230fc56a651" />
 
 <img width="2559" height="1310" alt="image" src="https://github.com/user-attachments/assets/beb1321b-7983-48d2-9b86-3b882e2839d8" />
 
 ---
 
-## 🔥 Future Improvements
+## Future Improvements
 
-* 🌐 Deploy on AWS / Docker
+* Deploy on AWS / Docker.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome!
 Feel free to fork this repo and submit a pull request.
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the **AGPL-3.0 License**.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Rejwan Faysal Rezon**
 
