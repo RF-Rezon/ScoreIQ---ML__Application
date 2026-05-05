@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreIQ — Student Performance Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0e0e0d;
+            --ink-2: #3a3a38;
+            --ink-3: #7a7a76;
+            --ink-4: #b8b8b3;
+            --surface: #f7f5f0;
+            --surface-2: #efede7;
+            --surface-3: #e5e2da;
+            --white: #ffffff;
+            --teal: #0f7c62;
+            --teal-mid: #1aab87;
+            --gold: #b8860b;
+            --red: #c0392b;
+            --border: rgba(14,14,13,0.1);
+            --border-strong: rgba(14,14,13,0.18);
+            --radius: 14px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .wrapper {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        /* HEADER */
+        .header { margin-bottom: 3rem; }
+
+        .wordmark {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .wordmark-icon {
+            width: 32px; height: 32px;
+            background: var(--ink);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .wordmark-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(32px, 6vw, 50px);
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title em { font-style: italic; color: var(--teal); }
+
+        .hero-desc { font-size: 15px; color: var(--ink-3); max-width: 480px; }
+
+        /* RESULT CARD */
+        .result-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            margin-bottom: 1rem;
+        }
+
+        .result-banner {
+            padding: 1.75rem 2rem;
+            background: var(--ink);
+        }
+
+        .result-banner-label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-score-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .result-score-big {
+            font-family: 'Instrument Serif', serif;
+            font-size: 64px;
+            line-height: 1;
+            color: var(--white);
+            letter-spacing: -0.03em;
+        }
+
+        .result-score-denom {
+            font-size: 20px;
+            color: rgba(255,255,255,0.35);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .result-body { padding: 1.5rem 2rem; }
+
+        .progress-track {
+            height: 8px;
+            background: var(--surface-2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .grade-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .result-note { font-size: 12px; color: var(--ink-4); }
+
+        .btn-reset {
+            display: block;
+            width: 100%;
+            margin-bottom: 2rem;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--ink-3);
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .btn-reset:hover { background: var(--surface-2); color: var(--ink); }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+        }
+
+        .section {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-num {
+            width: 22px; height: 22px;
+            background: var(--surface-2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--ink-3);
+            font-family: 'DM Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+        }
+
+        .grid { display: grid; gap: 1rem; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+
+        @media (max-width: 540px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .section { padding: 1.25rem; }
+        }
+
+        .field { display: flex; flex-direction: column; gap: 6px; }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+
+        .select-wrap { position: relative; }
+
+        select {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            font-size: 13.5px;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            color: var(--ink);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        select:focus {
+            border-color: var(--teal);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(15,124,98,0.12);
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 11px; top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--ink-4);
+        }
+
+        /* RANGE */
+        .range-field { display: flex; flex-direction: column; gap: 8px; }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .range-label { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+
+        .range-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--teal);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--surface-3);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--teal);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        .range-track-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--ink-4);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .score-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 28px;
+            margin-top: 2px;
+        }
+
+        .score-bar-seg {
+            flex: 1;
+            border-radius: 2px;
+            background: var(--surface-3);
+            transition: height 0.15s, background 0.2s;
+        }
+
+        /* SUBMIT */
+        .submit-section {
+            padding: 1.75rem 2rem;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--ink);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-submit:hover { background: var(--ink-2); }
+        .btn-submit:active { transform: scale(0.99); }
+        .btn-submit svg { transition: transform 0.2s; }
+        .btn-submit:hover svg { transform: translateX(3px); }
+
+        .form-note {
+            text-align: center;
+            font-size: 11px;
+            color: var(--ink-4);
+            margin-top: 0.75rem;
+        }
+
+        select.invalid {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 11px;
+            color: var(--ink-4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="wordmark">
+            <a href="/">
+                <div class="wordmark-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M3 14l4-5 3 3 2.5-4L16 14H3z" fill="white" opacity="0.9"/>
+                        <circle cx="14" cy="5" r="2" fill="white" opacity="0.6"/>
+                    </svg>
+                </div>
+            </a>
+            <span class="wordmark-text"><a href="/" style="text-decoration: none; color: inherit;">ScoreIQ</a></span>
+        </div>
+        <p class="hero-eyebrow">ML-powered prediction</p>
+        <h1 class="hero-title">Predict student<br><em>math performance</em></h1>
+        <p class="hero-desc">Enter student details below. The model analyzes academic history and background factors to estimate math exam score.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════
+         RESULT BLOCK
+         Score is passed via data-score attribute —
+         NO Jinja2 variables inside <script> tags
+    ════════════════════════════════════════════ -->
+    {% set score = results | default(None) %}
+    {% if score is not none %}
+        {% set score_int = score | round | int %}
+
+        <div class="result-card">
+            <div class="result-banner">
+                <p class="result-banner-label">Predicted math score</p>
+                <div class="result-score-row">
+                    <span class="result-score-big">{{ score_int }}</span>
+                    <span class="result-score-denom">/ 100</span>
+                </div>
+            </div>
+            <div class="result-body">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"
+                         data-score="{{ score_int }}"
+                         style="{% if score_int >= 75 %}background:#1aab87{% elif score_int >= 60 %}background:#b8860b{% else %}background:#c0392b{% endif %}">
+                    </div>
+                </div>
+                <div class="result-meta">
+                    {% if score_int >= 90 %}
+                        <span class="grade-badge" style="background:#e2f4ef;color:#0f7c62;">
+                            <span class="grade-dot" style="background:#1aab87"></span>Outstanding
+                        </span>
+                    {% elif score_int >= 75 %}
+                        <span class="grade-badge" style="background:#e2f4ef;color:#0f7c62;">
+                            <span class="grade-dot" style="background:#1aab87"></span>Proficient
+                        </span>
+                    {% elif score_int >= 60 %}
+                        <span class="grade-badge" style="background:#fdf8e8;color:#8a6400;">
+                            <span class="grade-dot" style="background:#b8860b"></span>Developing
+                        </span>
+                    {% else %}
+                        <span class="grade-badge" style="background:#fdf0ee;color:#a03020;">
+                            <span class="grade-dot" style="background:#c0392b"></span>Needs support
+                        </span>
+                    {% endif %}
+                    <span class="result-note">estimated math score</span>
+                </div>
+            </div>
+        </div>
+        <a href="/predictdata" class="btn-reset">Run another prediction</a>
+
+    {% endif %}
+
+    <!-- FORM -->
+    <div class="form-card">
+        <form action="/predictdata" method="POST" id="predictForm">
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-num">01</span>
+                    <span class="section-title">Demographics</span>
+                </div>
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label for="gender">Gender</label>
+                        <div class="select-wrap">
+                            <select id="gender" name="gender" required>
+                                <option value="" disabled selected>Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <svg class="select-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="ethnicity">Race / ethnicity</label>
+                        <div class="select-wrap">
+                            <select id="ethnicity" name="ethnicity" required>
+                                <option value="" disabled selected>Select group</option>
+                                <option value="group A">Group A</option>
+                                <option value="group B">Group B</option>
+                                <option value="group C">Group C</option>
+                                <option value="group D">Group D</option>
+                                <option value="group E">Group E</option>
+                            </select>
+                            <svg class="select-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-num">02</span>
+                    <span class="section-title">Background factors</span>
+                </div>
+                <div class="grid" style="gap:1rem;">
+                    <div class="field">
+                        <label for="parental_level_of_education">Parental level of education</label>
+                        <div class="select-wrap">
+                            <select id="parental_level_of_education" name="parental_level_of_education" required>
+                                <option value="" disabled selected>Select education level</option>
+                                <option value="some high school">Some high school</option>
+                                <option value="high school">High school</option>
+                                <option value="some college">Some college</option>
+                                <option value="associate's degree">Associate's degree</option>
+                                <option value="bachelor's degree">Bachelor's degree</option>
+                                <option value="master's degree">Master's degree</option>
+                            </select>
+                            <svg class="select-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="grid grid-2">
+                        <div class="field">
+                            <label for="lunch">Lunch type</label>
+                            <div class="select-wrap">
+                                <select id="lunch" name="lunch" required>
+                                    <option value="" disabled selected>Select type</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="free/reduced">Free / Reduced</option>
+                                </select>
+                                <svg class="select-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="test_preparation_course">Test preparation</label>
+                            <div class="select-wrap">
+                                <select id="test_preparation_course" name="test_preparation_course" required>
+                                    <option value="" disabled selected>Select status</option>
+                                    <option value="none">None</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <svg class="select-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-num">03</span>
+                    <span class="section-title">Other subject scores</span>
+                </div>
+                <div class="grid" style="gap:1.5rem;">
+                    <div class="range-field">
+                        <div class="range-header">
+                            <span class="range-label">Reading score</span>
+                            <span class="range-value" id="reading_display">50</span>
+                        </div>
+                        <input type="range" id="reading_score" name="reading_score"
+                               min="0" max="100" value="50" step="1"
+                               oninput="updateRange('reading_display', this.value, 'reading_bars')">
+                        <div class="range-track-labels">
+                            <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+                        </div>
+                        <div class="score-bars" id="reading_bars"></div>
+                    </div>
+                    <div class="range-field">
+                        <div class="range-header">
+                            <span class="range-label">Writing score</span>
+                            <span class="range-value" id="writing_display">50</span>
+                        </div>
+                        <input type="range" id="writing_score" name="writing_score"
+                               min="0" max="100" value="50" step="1"
+                               oninput="updateRange('writing_display', this.value, 'writing_bars')">
+                        <div class="range-track-labels">
+                            <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+                        </div>
+                        <div class="score-bars" id="writing_bars"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn-submit">
+                    Predict math score
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <p class="form-note">All fields are required. Prediction is based on your trained ML model.</p>
+            </div>
+
+        </form>
+    </div>
+
+    <footer class="footer">
+        <p>ScoreIQ &nbsp;·&nbsp; Student Performance Predictor &nbsp;·&nbsp; ML Project</p>
+    </footer>
+</div>
+
+<script>
+    /* Progress bar — score read from data-score attribute, NOT from Jinja2 */
+    window.addEventListener('load', function () {
+        var fill = document.getElementById('progressFill');
+        if (fill) {
+            var score = parseInt(fill.getAttribute('data-score'), 10);
+            setTimeout(function () {
+                fill.style.width = score + '%';
+            }, 120);
+        }
+    });
+
+    /* Bar chart for range sliders */
+    function buildBars(id) {
+        var c = document.getElementById(id);
+        c.innerHTML = '';
+        for (var i = 0; i < 20; i++) {
+            var b = document.createElement('div');
+            b.className = 'score-bar-seg';
+            b.style.height = '4px';
+            c.appendChild(b);
+        }
+    }
+
+    function updateRange(displayId, value, barsId) {
+        document.getElementById(displayId).textContent = value;
+        var pct = parseInt(value, 10);
+        var segs = document.querySelectorAll('#' + barsId + ' .score-bar-seg');
+        var filled = Math.round(pct / 100 * 20);
+        segs.forEach(function (seg, i) {
+            if (i < filled) {
+                seg.style.height = (10 + Math.sin(i * 0.6) * 5 + (i % 3)) + 'px';
+                seg.style.background = pct >= 75 ? '#1aab87' : pct >= 50 ? '#b8860b' : '#c0392b';
+            } else {
+                seg.style.height = '4px';
+                seg.style.background = '#e5e2da';
+            }
+        });
+    }
+
+    buildBars('reading_bars');
+    buildBars('writing_bars');
+    updateRange('reading_display', 50, 'reading_bars');
+    updateRange('writing_display', 50, 'writing_bars');
+
+    /* Validation */
+    document.getElementById('predictForm').addEventListener('submit', function (e) {
+        var ok = true;
+        this.querySelectorAll('select[required]').forEach(function (s) {
+            if (!s.value) {
+                s.classList.add('invalid');
+                ok = false;
+                s.addEventListener('change', function () { s.classList.remove('invalid'); }, { once: true });
+            }
+        });
+        if (!ok) e.preventDefault();
+    });
+</script>
+
+</body>
+</html>

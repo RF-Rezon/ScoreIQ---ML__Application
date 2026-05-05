@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreIQ — Student Performance Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0e0e0d;
+            --ink-2: #3a3a38;
+            --ink-3: #7a7a76;
+            --ink-4: #b8b8b3;
+            --surface: #f7f5f0;
+            --surface-2: #efede7;
+            --surface-3: #e5e2da;
+            --white: #ffffff;
+            --teal: #0f7c62;
+            --teal-mid: #1aab87;
+            --teal-light: #e2f4ef;
+            --border: rgba(14,14,13,0.1);
+            --border-strong: rgba(14,14,13,0.18);
+            --radius: 14px;
+            --radius-sm: 8px;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── GRID BACKGROUND ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── TEAL GLOW ── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(26,171,135,0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── LAYOUT ── */
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAV ── */
+        nav {
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: rgba(247,245,240,0.8);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .wordmark {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .wordmark-icon {
+            width: 30px; height: 30px;
+            background: var(--ink);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .wordmark-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            color: var(--ink);
+        }
+
+        .nav-tag {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-4);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 1.5rem 4rem;
+        }
+
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--teal-light);
+            border: 1px solid rgba(15,124,98,0.2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--teal);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .chip-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--teal-mid);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(40px, 8vw, 76px);
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            animation: fadeDown 0.5s ease 0.08s both;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--teal);
+        }
+
+        .hero-title .line-2 {
+            display: block;
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            color: var(--ink-3);
+            max-width: 440px;
+            line-height: 1.75;
+            margin-bottom: 2.5rem;
+            animation: fadeDown 0.5s ease 0.16s both;
+        }
+
+        /* ── CTA BUTTON ── */
+        .cta-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeDown 0.5s ease 0.24s both;
+        }
+
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 32px;
+            background: var(--ink);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(14,14,13,0.18);
+        }
+
+        .btn-cta:hover {
+            background: var(--ink-2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(14,14,13,0.22);
+        }
+
+        .btn-cta:active { transform: translateY(0); }
+
+        .btn-cta svg { transition: transform 0.2s; }
+        .btn-cta:hover svg { transform: translateX(4px); }
+
+        .cta-note {
+            font-size: 11px;
+            color: var(--ink-4);
+        }
+
+        /* ── STATS ROW ── */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 4rem auto 0;
+            max-width: 560px;
+            width: 100%;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--white);
+            animation: fadeUp 0.5s ease 0.32s both;
+        }
+
+        .stat {
+            flex: 1;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat:last-child { border-right: none; }
+
+        .stat-num {
+            font-family: 'Instrument Serif', serif;
+            font-size: 28px;
+            color: var(--ink);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--ink-4);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── FEATURE CARDS ── */
+        .features {
+            padding: 5rem 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .features-eyebrow {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-4);
+            margin-bottom: 3rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .feature-grid { grid-template-columns: 1fr; }
+            .stats { flex-direction: column; }
+            .stat { border-right: none; border-bottom: 1px solid var(--border); }
+            .stat:last-child { border-bottom: none; }
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-strong);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 36px; height: 36px;
+            border-radius: 9px;
+            background: var(--surface-2);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--ink-3);
+            line-height: 1.65;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--ink-4);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+
+    <!-- NAV -->
+    <nav>
+        <a class="wordmark" href="/">
+            <div class="wordmark-icon">
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                    <path d="M3 14l4-5 3 3 2.5-4L16 14H3z" fill="white" opacity="0.9"/>
+                    <circle cx="14" cy="5" r="2" fill="white" opacity="0.6"/>
+                </svg>
+            </div>
+            <span class="wordmark-text">ScoreIQ</span>
+        </a>
+        <span class="nav-tag">ML Project</span>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+
+        <div class="hero-chip">
+            <span class="chip-dot"></span>
+            Machine Learning Powered
+        </div>
+
+        <h1 class="hero-title">
+            Predict student
+            <span class="line-2"><em>math scores</em> instantly</span>
+        </h1>
+
+        <p class="hero-desc">
+            Enter a student's background and academic details.
+            Our trained ML model predicts their math exam performance in seconds.
+        </p>
+
+        <div class="cta-wrap">
+            <a href="{{ url_for('predict_datapoint') }}" class="btn-cta">
+                Start predicting
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <span class="cta-note">No login required &nbsp;·&nbsp; Instant results</span>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">7</div>
+                <div class="stat-label">Input features</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">0–100</div>
+                <div class="stat-label">Score range</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">&lt;1s</div>
+                <div class="stat-label">Prediction time</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features">
+        <p class="features-eyebrow">How it works</p>
+        <div class="feature-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <rect x="2" y="3" width="14" height="12" rx="2" stroke="#0f7c62" stroke-width="1.4"/>
+                        <path d="M6 7h6M6 10h4" stroke="#0f7c62" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <p class="feature-title">Fill the form</p>
+                <p class="feature-desc">Enter gender, ethnicity, parental education, lunch type, test prep status, and subject scores.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <circle cx="9" cy="9" r="6.5" stroke="#0f7c62" stroke-width="1.4"/>
+                        <path d="M6 9l2 2 4-4" stroke="#0f7c62" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <p class="feature-title">Model predicts</p>
+                <p class="feature-desc">A trained regression model processes the inputs through preprocessing and generates a score.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M3 13l3.5-4.5 3 3L12 7l3 6H3z" stroke="#0f7c62" stroke-width="1.4" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <p class="feature-title">See the result</p>
+                <p class="feature-desc">Get the predicted math score instantly with a grade badge and a visual performance bar.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <span>ScoreIQ &nbsp;·&nbsp; Student Performance Predictor</span>
+        <span>ML Project</span>
+    </footer>
+
+</div>
+
+</body>
+</html>

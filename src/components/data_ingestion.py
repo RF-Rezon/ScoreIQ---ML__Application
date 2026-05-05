@@ -57,7 +57,7 @@ if __name__=="__main__":
     modelTrainer = ModelTrainer()
     # best_model_name,best_model_score = modelTrainer.initiate_model_trainer(train_arr,test_arr)
     # print(best_model_name,best_model_score)
-    modelTrainer.initiate_model_trainer(train_arr,test_arr)
+    print(modelTrainer.initiate_model_trainer(train_arr,test_arr))
     
 
 
