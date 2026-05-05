@@ -1,5 +1,5 @@
-<img margin-bottom="5" width="119" height="45" alt="image" src="https://github.com/user-attachments/assets/4da2fb91-3e77-49fa-88db-5ac992f1f4b4" />
-
+<img width="119" height="45" alt="image" src="https://github.com/user-attachments/assets/1cf420ed-3889-4d8e-86da-ddacb4196ca1" />
+<br>
 **Student Performance Prector** 
 
 It's a **Machine Learning** powered web application that predicts a student's **math score** based on various demographic and academic inputs.
@@ -55,8 +55,8 @@ The model takes the following inputs:
 
 ## Screenshots
 
-<img margin-bottom="20" width="2559" height="1354" alt="image" src="https://github.com/user-attachments/assets/60353523-ea3a-457f-8d7b-4230fc56a651" />
-
+<img width="2559" height="1354" alt="image" src="https://github.com/user-attachments/assets/60353523-ea3a-457f-8d7b-4230fc56a651" />
+<br><br>
 <img width="2559" height="1310" alt="image" src="https://github.com/user-attachments/assets/beb1321b-7983-48d2-9b86-3b882e2839d8" />
 
 ---
