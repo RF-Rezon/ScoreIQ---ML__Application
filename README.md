@@ -48,7 +48,7 @@ The model takes the following inputs:
 
 ---
 
-## 📈 Output
+## Output
 
 * Predicted **Math Score**
 * Visual progress bar indicating performance level
